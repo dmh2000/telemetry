@@ -83,4 +83,7 @@ even though you just created it (because it is on a different subscription).
 ## Deploy to real IOT device
 
 Since I forked the repo all I need to do is log in to my Beaglebone, clone the repo, and set up the Quickstart simulated device as above in 'Send Simualted Telemetry'.
+I had Node version 10 installed on my BeagleBone. I just set up the device connection string as an environment variable, did "npm install" in the simulated-device directory,
+and ran the program. I used my workstation as the receiving end, running the ReadDeviceToCloudMessages.js there. It worked without modification.
+This reinforces that you can do much of your development for the IOT device on  your workstation and only deploy to the IOT device when ready. 
 
