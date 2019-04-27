@@ -89,7 +89,11 @@ IOT device via Azure. If you had a team of more than one this would have been a 
 ## Step 1 - IOT device talking to Azure IOT service
 
 This involves basic setup of the Azure IOT device side support, and then getting the Beaglebone to uplink telemetry to the Azure service. 
-At this point I will use fake data to keep it simple. 
+At this point I will use fake data to keep it simple. BTW, you don't really need a physical IOT device, you can work through most of
+this using your workstation as your device.
+
+Go to [Step 1](step1/README.md). During the setup you will be following a tutorial on the Azure website, but the step 1 readme has some extra information and 
+hints that can help out when doing the tutorial.
 
 ## Step 2 - Client device reading data from Azure IOT service
 
