@@ -92,15 +92,19 @@ This reinforces that you can do much of your development for the IOT device on  
 
 This example uses the Message Queue Telemetry Transport
 
- [MQTT FAQ]([../step2/README.md](https://mqtt.org/faq))
+ [MQTT FAQ](https://mqtt.org))
 <pre>
 MQTT stands for MQ Telemetry Transport. It is a publish/subscribe, extremely simple and lightweight messaging protocol, designed for constrained devices and low-bandwidth, high-latency or unreliable networks. The design principles are to minimise network bandwidth and device resource requirements whilst also attempting to ensure reliability and some degree of assurance of delivery. These principles also turn out to make the protocol ideal of the emerging “machine-to-machine” (M2M) or “Internet of Things” world of connected devices, and for mobile applications where bandwidth and battery power are at a premium.
 </pre>
 
-One thing to know, is that the MQTT protocol is not encrypted. If encryption is required, then the connections should use MQTT over SSL. So don't send anything on a plain 
-MQTT protocol that is secret, personal or you otherwise don't want other folks to know. 
+### Authentication and Encryption
 
-The Azure IOT Hub also has a REST endpoint. If end-to-end encryption is important, it might be easier to use the REST endpoint over HTTPS. You won't get some of the advantages of the MQTT protocl, such as low bandwidth usage and resulting low power consumption in a small device. If you have plenty of power and a fast processor this might not matter.
+Encryption is not part of the base MQTT protocol standard. If encryption is required, then the connections should use MQTT over SSL. So don't send anything on a plain  MQTT protocol that is secret, personal or you otherwise don't want other folks to know. This is not a problem with the Azure toolit.
+
+Here's my understanding of what security is by default in the Azure IOT samples. 
+ - The messages are authenticated using the secret key in the connection string. So you must have the secret key in order to talk to the IOT hub endpoint. This ensures that only messages from endpoints that have the secret key are accepted.
+ - The MQTT transport is encrypted with TLS by default. This prevents traffic sniffing. (IOT Hub Security)[https://docs.microsoft.com/en-us/azure/iot-fundamentals/iot-security-ground-up]. I also verified using Wireshark, just in case I didn't understand the documentation. 
+
 
 ## Appendix B - SimulatedDevice.js
 
