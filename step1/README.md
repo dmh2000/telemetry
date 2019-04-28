@@ -56,14 +56,20 @@ Hints:
  - When it tells you to 'make a note of' something in the CLI, it means copy it and paste it somewhere. Most of these are too long to 'make a note of'. 
  - **Don't include the connection strings and crypto keys in a public git/gitlab/github/etc repo.**
 
-## Send Simulated Telemetry
+## Send Telemetry
 
 Hints:
  - do this on your workstation to start.
  - the tutorial tells you to edit the file SimulatedDevice.js and paste in the connection string you got in the previous step. That's ok for this test, but its bad practice to hard code the string. Not only is it inflexible, the real problem is if you put this file in a public git repo, everyone can see your connection keys and do nefarious things with them. The proper way to include the key is to export it in an environment variable and then use your language facility to read that variable at runtime.
  - note that in the ReadDeviceToCloudMessages.js file, the proper way to use a connection string is used.
  - Other than setting the connection strings, the two files should run and show good results. 
+ - 
+## Receive Telemetry
 
+Hints:
+ - note that in the ReadDeviceToCloudMessages.js file, the proper way to use a connection string is used.
+ - Other than setting the connection strings, the two files should run and show good results. 
+  
 ## METRICS
 
 One thing the tutorial doesn't show is that the Azure dashboard will let you see metrics of activity of whatever you are doing, in this case sending and
@@ -92,18 +98,18 @@ This reinforces that you can do much of your development for the IOT device on  
 
 This example uses the Message Queue Telemetry Transport
 
- [MQTT FAQ](https://mqtt.org))
+ [MQTT.ORG](https://mqtt.org)
 <pre>
 MQTT stands for MQ Telemetry Transport. It is a publish/subscribe, extremely simple and lightweight messaging protocol, designed for constrained devices and low-bandwidth, high-latency or unreliable networks. The design principles are to minimise network bandwidth and device resource requirements whilst also attempting to ensure reliability and some degree of assurance of delivery. These principles also turn out to make the protocol ideal of the emerging “machine-to-machine” (M2M) or “Internet of Things” world of connected devices, and for mobile applications where bandwidth and battery power are at a premium.
 </pre>
 
 ### Authentication and Encryption
 
-Encryption is not part of the base MQTT protocol standard. If encryption is required, then the connections should use MQTT over SSL. So don't send anything on a plain  MQTT protocol that is secret, personal or you otherwise don't want other folks to know. This is not a problem with the Azure toolit.
+Encryption is NOT part of the base MQTT protocol standard. If encryption is required, then the connections should use MQTT over SSL. So don't send anything on a plain  MQTT protocol that is secret, personal or you otherwise don't want other folks to know. This is not a problem with the Azure toolkit.
 
 Here's my understanding of what security is by default in the Azure IOT samples. 
  - The messages are authenticated using the secret key in the connection string. So you must have the secret key in order to talk to the IOT hub endpoint. This ensures that only messages from endpoints that have the secret key are accepted.
- - The MQTT transport is encrypted with TLS by default. This prevents traffic sniffing. (IOT Hub Security)[https://docs.microsoft.com/en-us/azure/iot-fundamentals/iot-security-ground-up]. I also verified using Wireshark, just in case I didn't understand the documentation. 
+ - The MQTT transport is encrypted with TLS by default. This prevents traffic sniffing. [Azure IOT Hub Security](https://docs.microsoft.com/en-us/azure/iot-fundamentals/iot-security-ground-up). I also verified using Wireshark, just in case I didn't understand the documentation. 
 
 
 ## Appendix B - SimulatedDevice.js
