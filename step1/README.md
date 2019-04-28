@@ -19,11 +19,12 @@ you back to the portal to actually do things.
 ## Prerequisites
   
 For the tutorial, before we deploy to the target IOT device, you can do the setup and test using your workstation (Linux, Mac or Windows). The quickstart requires one of several programming languages to be available. I am going to use JavaScript and NodeJS version 10. 
- - it asks you to download the sample code from github in a zip file. I forked the containing repo instead and used my copy going forward so I could changes and keep updates.
+ - it asks you to download the sample code from github in a zip file. I forked the containing repo instead and used my copy going forward so I could make changes and keep updates.
 
 ## Proceed with the Tutorial
 
-This tutorial was very easy to follow (unlike the one on AWS) so **just follow it exactly and everything will work out**.
+This tutorial was very easy to follow (unlike the one on AWS) so **just follow it exactly and everything will work out**. In fact, you don't really need me
+to tell you anything. The tutorial is excellent. I am adding a few hints that are worth reading but they aren't necessary to complete the tutorial.
 
 Here are a few hints to help out:
   - when you activate the Azure CLI, you have to select Powershell or Bash as your terminal. Pick the one you prefer. It appears to me that the Azure 'az' commands are the same for both terminals. 
@@ -87,3 +88,117 @@ I had Node version 10 installed on my BeagleBone. I just set up the device conne
 and ran the program. I used my workstation as the receiving end, running the ReadDeviceToCloudMessages.js there. It worked without modification.
 This reinforces that you can do much of your development for the IOT device on  your workstation and only deploy to the IOT device when ready. 
 
+## Appendix A The Protocol
+
+This example uses the Message Queue Telemetry Transport
+
+ [MQTT FAQ]([../step2/README.md](https://mqtt.org/faq))
+<pre>
+MQTT stands for MQ Telemetry Transport. It is a publish/subscribe, extremely simple and lightweight messaging protocol, designed for constrained devices and low-bandwidth, high-latency or unreliable networks. The design principles are to minimise network bandwidth and device resource requirements whilst also attempting to ensure reliability and some degree of assurance of delivery. These principles also turn out to make the protocol ideal of the emerging “machine-to-machine” (M2M) or “Internet of Things” world of connected devices, and for mobile applications where bandwidth and battery power are at a premium.
+</pre>
+
+One thing to know, is that the MQTT protocol is not encrypted. If encryption is required, then the connections should use MQTT over SSL. So don't send anything on a plain 
+MQTT protocol that is secret, personal or you otherwise don't want other folks to know. 
+
+The Azure IOT Hub also has a REST endpoint. If end-to-end encryption is important, it might be easier to use the REST endpoint over HTTPS. You won't get some of the advantages of the MQTT protocl, such as low bandwidth usage and resulting low power consumption in a small device. If you have plenty of power and a fast processor this might not matter.
+
+## Appendix B - SimulatedDevice.js
+
+This is what runs on the IOT device. It connects to the IOT Hub service and sends periodic messages. It actually is a decent baseline for my app, just adding the right data to it.
+
+```javascript
+// Using the Azure CLI:
+// don't hard code the connection string. use an environment variable
+var connectionString = process.env.IOT_DEVICE_CONNECTION;
+
+// Using the Node.js Device SDK for IoT Hub:
+// The sample connects to a device-specific MQTT endpoint on your IoT Hub.
+var Mqtt         = require('azure-iot-device-mqtt').Mqtt;
+var DeviceClient = require('azure-iot-device').Client
+var Message      = require('azure-iot-device').Message;
+
+var client = DeviceClient.fromConnectionString(connectionString, Mqtt);
+
+// Create a message and send it to the IoT hub every second
+setInterval(function(){
+  // Simulate telemetry.
+  var temperature = 20 + (Math.random() * 15);
+
+  // the message itself is JSON
+  var message = new Message(JSON.stringify({
+    temperature: temperature,
+    humidity: 60 + (Math.random() * 20)
+  }));
+
+  // Add a custom application property to the message.
+  // An IoT hub can filter on these properties without access to the message body.
+  message.properties.add('temperatureAlert', (temperature > 30) ? 'true' : 'false');
+
+  console.log('Sending message: ' + message.getData());
+
+  // Send the message once every second
+  client.sendEvent(message, function (err) {
+    if (err) {
+      console.error('send error: ' + err.toString());
+    } else {
+      console.log('message sent');
+    }
+  });
+}, 1000);
+```
+## Appendix C - ReadDeviceToCloudMessages.js
+
+This is what runs on the IOT device. It connects to the IOT Hub service and sends periodic messages. It actually is a decent baseline for my app, just adding the right data to it.
+
+```javascript
+// Using the Azure CLI:
+// az iot hub show-connection-string --hub-name {YourIoTHubName} --output table
+const connectionString = process.env.IOT_HUB_CONNECTION;
+
+// Using the Node.js SDK for Azure Event hubs:
+//   https://github.com/Azure/azure-event-hubs-node
+const { EventHubClient, EventPosition } = require('@azure/event-hubs');
+
+// CALLBACK FUNCTION
+const printError = function (err) {
+  console.log(err.message);
+};
+
+// CALLBACK FUNCTION
+// Display the message content - telemetry and properties.
+// - Telemetry is sent in the message body
+// - The device can add arbitrary application properties to the message
+// - IoT Hub adds system properties, such as Device Id, to the message.
+const printMessage = function (message) {
+  // this is the message body, JSON encoded
+  console.log('Telemetry received: ');
+  console.log(JSON.stringify(message.body));
+  
+  // this is the properties object, such as the alert code in SimulatedDevice.js
+  console.log('Application properties (set by device): ')
+  console.log(JSON.stringify(message.applicationProperties));
+
+  // other info set by the Azure IO Hub
+  console.log('System properties (set by IoT Hub): ')
+  console.log(JSON.stringify(message.annotations));
+  console.log('');
+};
+
+// SUBSCRIBE TO THE IO DEVICE MESSAGE
+// Connect to the partitions on the IoT Hub's Event Hubs-compatible endpoint.
+// This example only reads messages sent after this application started.
+let ehClient;
+EventHubClient.createFromIotHubConnectionString(connectionString).then(function (client) {
+  console.log("Successully created the EventHub Client from iothub connection string.");
+  ehClient = client;
+  return ehClient.getPartitionIds();
+}).then(function (ids) {
+  console.log("The partition ids are: ", ids);
+  return ids.map(function (id) {
+    return ehClient.receive(id, printMessage, printError, { eventPosition: EventPosition.fromEnqueuedTime(Date.now()) });
+  });
+}).catch(printError);
+
+```
+## Next
+Go to [Step 2](../step2/README.md).

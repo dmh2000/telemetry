@@ -2,7 +2,7 @@ Monitoring Telemetry In The Cloud
 ----------------------------------
 
 I want to do an experiment. Using an IOT device with some sensors on it, I want to be able to monitor them
-from anywhere I have cellular or wifi access. The purpose of this experiment is to see what pieces, software and hardware, 
+from anywhere I have cellular or wifi access, and send commands to the device. The purpose of this experiment is to see what pieces, software and hardware, 
 that need to be in the solution to get it to work. (Not necessarily that the result will be particularly useful)
 
 For this attempt, I have a BeagbleBone Blue that will serve as the IOT device.
@@ -65,12 +65,13 @@ There are 3 apps in the system : the IOT device telemetry app, the web server ba
 
 ## New Design
 
-I decided to attempt to use a Cloud IOT service, partly due to better security and also becuase
+I decided to attempt to use a Cloud IOT service, mostly due to better security  and scalability. I also becuase
 I wanted to learn about them 
 I played around a bit with IOT services for AWS and Azure, and I found that for my purposes
 Azure was easier to get something working. This is not a comparison of the products and I'm
 not saying which one is better. I just found that I flailed a bit more with AWS and
-especially their tutorials. I'm probably just not that smart and got lucky with Azure. Plus
+especially their tutorials. I'm probably just not that smart and got lucky with Azure. The Azure tutorials
+are excellent, don't make any assumptions and provide code that is useable as a baseline for my apps. Plus
 I have an MSDN subscription that gives me credits for using Azure and I would have to pay
 (a very small amount, a few cents) to do this on AWS.
 
@@ -95,9 +96,21 @@ this using your workstation as your device.
 Go to [Step 1](step1/README.md). During the setup you will be following a tutorial on the Azure website, but the step 1 readme has some extra information and 
 hints that can help out when doing the tutorial.
 
-## Step 2 - Client device reading data from Azure IOT service
+## Step 2 - Sending Commands to the IOT Device
 
-Now that the devices is sending its data to Azure, I need to see how a client device will connect to Azure
-to retrieve the data and display it. I will use a simple command line program to retrieve the data.
+Now that the IOT device is sending its data to Azure, and I can read it from my workstation,  I need to see how to send commands to the device.
 
-## Step 3 - 
+Go to [Step 2](step2/README.md). You will be following the next step in the Azure IOT tutorial.
+
+## Step 3 - IOT Device Application
+
+Go to [Step 3](step3/README.md).  Create the actual application to run on the IOT device. 
+
+## Step 4 - Web Server Backend
+
+Go to [Step 4](step4/README.md).  Creating the web server backend that reads the IOT device telemetry and forwards commands to it.to run on the IOT device. 
+
+## Step 5 - Web Frontend
+
+Go to [Step 5](step5/README.md). Create the React app that 
+
