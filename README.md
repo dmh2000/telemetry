@@ -75,6 +75,9 @@ are excellent, don't make any assumptions and provide code that is useable as a 
 I have an MSDN subscription that gives me credits for using Azure and I would have to pay
 (a very small amount, a few cents) to do this on AWS.
 
+Update: I found that the best way to start with AWS IOT is to enroll in their free digital training
+and then take the 'Internet of Things Foundation Series'. 
+
 Here is a modified design diagram including the Cloud IOT support:
 
 ![alt text](./iot-experiment-2.png "IOT Experiment Design With Cloud") 
@@ -87,7 +90,7 @@ In this case I do the hard part first, which is learning Azure IOT and getting t
 have mocked up the React front end and the Node backend first and then worked to get the back end talking to the 
 IOT device via Azure. If you had a team of more than one this would have been a good way to split things up.
 
-## Step 1 - IOT device talking to Azure IOT service
+## Step 1 - Azure IOT device sending and Workstation Receiving Telemetry
 
 This involves basic setup of the Azure IOT device side support, and then getting the Beaglebone to uplink telemetry to the Azure service. 
 At this point I will use fake data to keep it simple. BTW, you don't really need a physical IOT device, you can work through most of
@@ -96,7 +99,7 @@ this using your workstation as your device.
 Go to [Step 1](step1/README.md). During the setup you will be following a tutorial on the Azure website, but the step 1 readme has some extra information and 
 hints that can help out when doing the tutorial.
 
-## Step 2 - Sending Commands to the IOT Device
+## Step 2 - Azure Sending Commands to the IOT Device
 
 Now that the IOT device is sending its data to Azure, and I can read it from my workstation,  I need to see how to send commands to the device.
 
