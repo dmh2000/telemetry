@@ -1,35 +1,35 @@
-Monitoring Telemetry In The Cloud
+IOT Telemetry : Azure and AWS
 ----------------------------------
 
-I want to do an experiment. Using an IOT device with some sensors on it, I want to be able to monitor them
+I want to do an experiment. Using an IOT device with some sensors on it, I want to be able to monitor them in real time
 from anywhere I have cellular or wifi access, and send commands to the device. The purpose of this experiment is to see what pieces, software and hardware, 
 that need to be in the solution to get it to work. (Not necessarily that the result will be particularly useful)
 
-For this attempt, I have a BeagbleBone Blue that will serve as the IOT device.
-This board has various sensors on it including an IMU with accelerometers,
-gyros and temperature. In addition I have a USB GPS installed on it. Great. It will be somewhere it can
-connect to wifi (no cellular modem on this one) to potentially uplink its status. Ideally it would be battery powered
+For this attempt, I have several devices that I can use at the IOT Device : a Beaglebone Black, a Beaglebone Blue, a couple of Raspberry PI's and
+my development workstation. I have a USB GPS I can install on any of these and get position data via the USB serial port it provides. 
+Great. It will be somewhere it can connect to wifi (no cellular modem on this one) to potentially uplink its location. Ideally it would be battery powered
 and have a cellular modem so I could throw it on a vehicle or a person and monitor what they are doing,  but for this
 round I just want to get see the telemetry data remotely. I guess I could strap it to my dog and detect if is 
 sleeping or running around the house. 
 
 # Assumptions
  - the IOT device is behind a NAT router so it can't be accessed directly from the internet
- - the IOT device will provide telemetry of its GPS position, accelerations and orientation 
+ - the IOT device will provide telemetry of its GPS position (lat,lon,velocity, time, etc)
  - the monitoring station laptop will be on whatever wifi it has available
  - a web server will be located somewhere on the public internet that can serve the app that monitors the device
  - the web server backend will be able to get the data from the device, somehow
  - the data will be show in real time, with a reasonable latency (a small number of seconds at the most)
  
 
-# Functional Design
+# Functional Requirements and Design
 
 ![alt text](./iot-experiment.png "IOT Experiment Design")
 
-- the IOT device runs Linux
-- the IOT device app will be implemented with nodejs plus any C++ extensions needed
+- the IOT device runs Linux or Window
+- the IOT device software should be portable to any of my platforms
+- the IOT device app will be implemented with nodejs for portability
 - the web server back end will use nodejs
-- the web front end will be a React app
+- the web front end will be a React app that implements a monitoring and control dashboard
 - the monitoring device is anything with a modern browser
 - because the IOT device is behind a NAT router, it must initiate the connection to the backend web server
 - the connection from laptop to web server will be secured
@@ -66,17 +66,12 @@ There are 3 apps in the system : the IOT device telemetry app, the web server ba
 ## New Design
 
 I decided to attempt to use a Cloud IOT service, mostly due to better security  and scalability. I also becuase
-I wanted to learn about them 
-I played around a bit with IOT services for AWS and Azure, and I found that for my purposes
-Azure was easier to get something working. This is not a comparison of the products and I'm
-not saying which one is better. I just found that I flailed a bit more with AWS and
-especially their tutorials. I'm probably just not that smart and got lucky with Azure. The Azure tutorials
-are excellent, don't make any assumptions and provide code that is useable as a baseline for my apps. Plus
-I have an MSDN subscription that gives me credits for using Azure and I would have to pay
-(a very small amount, a few cents) to do this on AWS.
+I wanted to learn about them.  An extra piece, the Cloud IOT service is added to the mix. In the original design, the IOT device and web
+server talk to each other directly. In the new design, each end talks via the Cloud IOT service, which adds a boatload
+of functionality that would a lot of work to duplication.
 
-Update: I found that the best way to start with AWS IOT is to enroll in their free digital training
-and then take the 'Internet of Things Foundation Series'. 
+With either Azure IOT or AWS IOT, my design is the same. The underlying implementation is different. Ideally, I could
+structure my application to work with either service, perhaps with a library I write that supports both systems.
 
 Here is a modified design diagram including the Cloud IOT support:
 
@@ -90,30 +85,37 @@ In this case I do the hard part first, which is learning Azure IOT and getting t
 have mocked up the React front end and the Node backend first and then worked to get the back end talking to the 
 IOT device via Azure. If you had a team of more than one this would have been a good way to split things up.
 
+# Azure
+
+I will start with Azure. 
+
 ## Step 1 - Azure IOT device sending and Workstation Receiving Telemetry
 
 This involves basic setup of the Azure IOT device side support, and then getting the Beaglebone to uplink telemetry to the Azure service. 
 At this point I will use fake data to keep it simple. BTW, you don't really need a physical IOT device, you can work through most of
 this using your workstation as your device.
 
-Go to [Step 1](step1/README.md). During the setup you will be following a tutorial on the Azure website, but the step 1 readme has some extra information and 
+Go to [Step 1](Azure/step1/README.md). During the setup you will be following a tutorial on the Azure website, but the step 1 readme has some extra information and 
 hints that can help out when doing the tutorial.
 
 ## Step 2 - Azure Sending Commands to the IOT Device
 
 Now that the IOT device is sending its data to Azure, and I can read it from my workstation,  I need to see how to send commands to the device.
 
-Go to [Step 2](step2/README.md). You will be following the next step in the Azure IOT tutorial.
+Go to [Step 2](Azure/step2/README.md). You will be following the next step in the Azure IOT tutorial.
 
 ## Step 3 - IOT Device Application
 
-Go to [Step 3](step3/README.md).  Create the actual application to run on the IOT device. 
+Go to [Step 3](Azure/step3/README.md).  Create the actual application to run on the IOT device. 
 
 ## Step 4 - Web Server Backend
 
-Go to [Step 4](step4/README.md).  Creating the web server backend that reads the IOT device telemetry and forwards commands to it.to run on the IOT device. 
+Go to [Step 4](Azure/step4/README.md).  Creating the web server backend that reads the IOT device telemetry and forwards commands to it.to run on the IOT device. 
 
 ## Step 5 - Web Frontend
 
-Go to [Step 5](step5/README.md). Create the React app that 
+Go to [Step 5](Azure/step5/README.md). Create the React app that 
 
+# AWS
+
+# Comparison and Conclusions
