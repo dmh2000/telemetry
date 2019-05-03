@@ -1,13 +1,13 @@
 IOT Telemetry : Azure and AWS
 ----------------------------------
 
-I want to do an experiment. Using an IOT device with some sensors on it, I want to be able to monitor them in real time
+Using an IOT device with some sensors on it, I want to be able to monitor them in real time
 from anywhere I have cellular or wifi access, and send commands to the device. The purpose of this experiment is to see what pieces, software and hardware, 
 that need to be in the solution to get it to work. (Not necessarily that the result will be particularly useful)
 
 For this attempt, I have several devices that I can use at the IOT Device : a Beaglebone Black, a Beaglebone Blue, a couple of Raspberry PI's and
 my development workstation. I have a USB GPS I can install on any of these and get position data via the USB serial port it provides. 
-Great. It will be somewhere it can connect to wifi (no cellular modem on this one) to potentially uplink its location. Ideally it would be battery powered
+It will be somewhere it can connect to wifi (no cellular modem on this one) to potentially uplink its location. Ideally it would be battery powered
 and have a cellular modem so I could throw it on a vehicle or a person and monitor what they are doing,  but for this
 round I just want to get see the telemetry data remotely. I guess I could strap it to my dog and detect if is 
 sleeping or running around the house. 
@@ -18,18 +18,18 @@ sleeping or running around the house.
  - the monitoring station laptop will be on whatever wifi it has available
  - a web server will be located somewhere on the public internet that can serve the app that monitors the device
  - the web server backend will be able to get the data from the device, somehow
- - the data will be show in real time, with a reasonable latency (a small number of seconds at the most)
+ - the data will be shown in real time, with a reasonable latency (a small number of seconds at the most)
  
 
 # Functional Requirements and Design
 
-![alt text](./iot-experiment.png "IOT Experiment Design")
+![alt text](Azure/img/iot-experiment.png "IOT Experiment Design")
 
 - the IOT device runs Linux or Window
 - the IOT device software should be portable to any of my platforms
 - the IOT device app will be implemented with nodejs for portability
 - the web server back end will use nodejs
-- the web front end will be a React app that implements a monitoring and control dashboard
+- the web front end will be a very simple web page that displays the data in real time.
 - the monitoring device is anything with a modern browser
 - because the IOT device is behind a NAT router, it must initiate the connection to the backend web server
 - the connection from laptop to web server will be secured
@@ -40,7 +40,7 @@ sleeping or running around the house.
 
 # Software Approach
 
-There are 3 apps in the system : the IOT device telemetry app, the web server backend and the front end React app.
+There are 3 apps in the system : the IOT device telemetry app, the web server backend and the front end app.
 
 ## Homegrown
    
@@ -60,12 +60,12 @@ There are 3 apps in the system : the IOT device telemetry app, the web server ba
     - scalable to millions of devices
     - built-in security (assuming they know more about it than I do)
   - disadvangages:
-    - a bit more complex
+    - a bit more complex (edit: turns out to be pretty easy for this simple use case)
     - a lot to learn
 
 ## New Design
 
-I decided to attempt to use a Cloud IOT service, mostly due to better security  and scalability. I also becuase
+I decided to attempt to use a Cloud IOT service due to better security  and scalability. I also becuase
 I wanted to learn about them.  An extra piece, the Cloud IOT service is added to the mix. In the original design, the IOT device and web
 server talk to each other directly. In the new design, each end talks via the Cloud IOT service, which adds a boatload
 of functionality that would a lot of work to duplication.
@@ -75,14 +75,16 @@ structure my application to work with either service, perhaps with a library I w
 
 Here is a modified design diagram including the Cloud IOT support:
 
-![alt text](./iot-experiment-2.png "IOT Experiment Design With Cloud") 
+![alt text](Azure/img/iot-experiment-2.png "IOT Experiment Design With Cloud") 
 
 # Building the Solution
 
 I prefer to develop incrementally, especially when I'm learning a new technology. I experiment with
 the new stuff until I feel I know how it works then I put the pieces together one-by-one to get the full solution.
+This is a bottom up approach. Then once I understand what the individual components can and should do, I can
+continue with a top down implementation.
 In this case I do the hard part first, which is learning Azure IOT and getting the device communicating. I could 
-have mocked up the React front end and the Node backend first and then worked to get the back end talking to the 
+have mocked up the web front end and the Node backend first and then worked to get the back end talking to the 
 IOT device via Azure. If you had a team of more than one this would have been a good way to split things up.
 
 # Azure
@@ -114,7 +116,7 @@ Go to [Step 4](Azure/step4/README.md).  Creating the web server backend that rea
 
 ## Step 5 - Web Frontend
 
-Go to [Step 5](Azure/step5/README.md). Create the React app that 
+Go to [Step 5](Azure/step5/README.md). Create the web app  
 
 # AWS
 

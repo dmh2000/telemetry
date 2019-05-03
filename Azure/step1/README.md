@@ -23,7 +23,7 @@ For the tutorial, before we deploy to the target IOT device, you can do the setu
 
 ## Proceed with the Tutorial
 
-This tutorial was very easy to follow (unlike the one on AWS) so **just follow it exactly and everything will work out**. In fact, you don't really need me
+This tutorial was very easy to follow so **just follow it exactly and everything will work out**. In fact, you don't really need me
 to tell you anything. The tutorial is excellent. I am adding a few hints that are worth reading but they aren't necessary to complete the tutorial.
 
 Here are a few hints to help out:
@@ -35,9 +35,9 @@ Here are a few hints to help out:
 ## Create an IOT Hub
 
 Hints:
-- the tutorial will refer you back the the portal to start setting up the IOT hub. After you click '+ Create a resource', don't reselect the quickstart. Use the search box to find 'IOT Hub' and go from there.
-- You will be createing several objects, a resource group, a hub and a device. Its best to name them consistently. In my case, I named the resource group iot-telemetry-resource, the hub iot-telemetry-hub, and the device iot-telemetry-bbb (for Beaglebone Blue). 
-- Even though I named the device with -bbb, the Azure IOT system doesn't really know which actual device you are using. You will be identifying the device with some authentication information, so for the tutorial you can use your workstation and later port that over to a real IOT device if you have one.
+- the tutorial will refer you back the the portal to start setting up the IOT hub. 
+- You will be creating several objects, a resource group, a hub and a device. Its best to name them consistently. In my case, I named the resource group iot-telemetry-resource, the hub iot-telemetry-hub, and the device iot-telemetry-bbb (for Beaglebone Blue). 
+- Even though I named the device with -bbb, the Azure IOT system doesn't really know which physical device you are using. You will be identifying the device with some authentication information, so for the tutorial you can use your workstation and later port that over to a real IOT device if you have one. 
 - When you get to the 'Size and Scale' page, you have to select the 'Scale Tier'. It suggests 'S1:Standard Tier'. You can change this to 'F1:Free Tier' to avoid a charge. The IOT support in the free tier is limited (8000 messages per day) but for familarizing with the whole process it is best. Once you really know what you are doing and want a real system you can start over with a paid tier. You can only have one IOT hub in the free tier so consider it a playground for learning.
 - You can bail out of the IOT Hub create wizard until you click the 'Create' button. You will lose your edits but there aren't that many so if you don't like something you selected or just want to quit you can bail and nothing is created.
 - Once you click 'Create' it takes a minute or two for the provisioning to complete.
@@ -60,8 +60,7 @@ Hints:
 
 Hints:
  - do this on your workstation to start.
- - the tutorial tells you to edit the file SimulatedDevice.js and paste in the connection string you got in the previous step. That's ok for this test, but its bad practice to hard code the string. Not only is it inflexible, the real problem is if you put this file in a public git repo, everyone can see your connection keys and do nefarious things with them. The proper way to include the key is to export it in an environment variable and then use your language facility to read that variable at runtime.
- - note that in the ReadDeviceToCloudMessages.js file, the proper way to use a connection string is used.
+ - the tutorial tells you to edit the file SimulatedDevice.js and paste in the connection string you got in the previous step. That's ok for this test, but its bad practice to hard code the string. Not only is it inflexible, the real problem is if you put this file in a public git repo, everyone can see your connection keys and do nefarious things with them. The proper way to include the key is to export it in an environment variable or other source that is not stored in the repo, and then use your language facility to read that variable at runtime.
  - Other than setting the connection strings, the two files should run and show good results. 
  - 
 ## Receive Telemetry
@@ -211,4 +210,13 @@ EventHubClient.createFromIotHubConnectionString(connectionString).then(function 
 
 ```
 ## Next
+
+At this point, we have the simulated device that can send data to the IOT Hub, and a receiver that gets the data from the IOT hub. I set up
+the sender running on a Beaglebone , and went to Starbucks with my laptop to see if I could get the data outside of my local network. Sure enough
+I ran the ReadDeviceToCouldMessages.js program and it started receiving the simulated data. 
+
+Here's the setup I have so far:
+
+![alt text](../img/iot-experiment-3.png "Beaglebone to Laptop") 
+
 Go to [Step 2](../step2/README.md).

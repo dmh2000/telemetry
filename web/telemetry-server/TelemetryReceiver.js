@@ -30,23 +30,38 @@ class TelemetryReceiver {
     this.printMessage = this.printMessage.bind(this);
   }
 
+  /**
+   * The input data is stored in this.data and 
+   * users of this module can poll for the latest
+   * data. For a first cut this was easier than
+   * implementing a client callback.
+   * @return current telemetry data
+   */
   getTelemetry () {
     return this.data;
   }
 
+  /**
+   * store the latest telemetry data in this.data
+   */
   update (message) {
+    console.log(message.body);
     this.data = message.body;
-    console.log(this.data);
   }
 
+  /**
+   * print error messages
+   */
   printError (err) {
     console.log(err.message);
   }
 
+  /**
   // Display the message content - telemetry and properties.
-  // - Telemetry is sent in the message body
-  // - The device can add arbitrary application properties to the message
-  // - IoT Hub adds system properties, such as Device Id, to the message.
+   * Telemetry is sent in the message body
+   * The device can add arbitrary application properties to the message
+   * IoT Hub adds system properties, such as Device Id, to the message.
+   */
   printMessage (message) {
     console.log("Telemetry received: ");
     console.log(JSON.stringify(message.body));
@@ -57,8 +72,12 @@ class TelemetryReceiver {
     console.log("");
   }
 
-  // Connect to the partitions on the IoT Hub's Event Hubs-compatible endpoint.
-  // This example only reads messages sent after this application started.
+  /**
+   * The client application calls 'run' once to get the client running. From
+   * there is continues to receive data until the app is closed.
+   * Connect to the partitions on the IoT Hub's Event Hubs-compatible endpoint.
+   * This example only reads messages sent after this application started.
+   */
   run () {
     let ehClient;
     EventHubClient.createFromIotHubConnectionString(
@@ -74,6 +93,8 @@ class TelemetryReceiver {
       .then((ids) => {
         console.log("The partition ids are: ", ids);
         return ids.map((id) => {
+          // here is where the wrong 'this' binding was showing up
+          // when these callbacks were made with the ehClient this
           return ehClient.receive(id, this.update, this.printError, {
             eventPosition: EventPosition.fromEnqueuedTime(Date.now())
           });
