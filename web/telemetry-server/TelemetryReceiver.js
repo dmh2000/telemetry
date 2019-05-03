@@ -24,26 +24,30 @@ class TelemetryReceiver {
   constructor(connstring) {
     this.connectionString = connstring;
     this.data = {"temperature":0,"humidity":0};
+    // bind member functions for use in async code
+    this.update       = this.update.bind(this);
+    this.printError   = this.printError.bind(this);
+    this.printMessage = this.printMessage.bind(this);
   }
 
-  getTelemetry = () => {
+  getTelemetry () {
     return this.data;
   }
 
-  update = (message) => {
+  update (message) {
     this.data = message.body;
-    //this.printMessage(message);
+    console.log(this.data);
   }
 
-  printError = (err)  =>{
+  printError (err) {
     console.log(err.message);
-  };
+  }
 
   // Display the message content - telemetry and properties.
   // - Telemetry is sent in the message body
   // - The device can add arbitrary application properties to the message
   // - IoT Hub adds system properties, such as Device Id, to the message.
-  printMessage = (message) => {
+  printMessage (message) {
     console.log("Telemetry received: ");
     console.log(JSON.stringify(message.body));
     console.log("Application properties (set by device): ");
@@ -51,11 +55,11 @@ class TelemetryReceiver {
     console.log("System properties (set by IoT Hub): ");
     console.log(JSON.stringify(message.annotations));
     console.log("");
-  };
+  }
 
   // Connect to the partitions on the IoT Hub's Event Hubs-compatible endpoint.
   // This example only reads messages sent after this application started.
-  run = () => {
+  run () {
     let ehClient;
     EventHubClient.createFromIotHubConnectionString(
       this.connectionString
@@ -76,7 +80,7 @@ class TelemetryReceiver {
         });
       })
       .catch(this.printError);
-  };
+  }
 }
 
 module.exports = TelemetryReceiver;
