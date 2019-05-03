@@ -48,4 +48,4 @@ setInterval(function(){
       console.log('message sent');
     }
   });
-}, 1000);
+}, 10000);
