@@ -28,8 +28,9 @@ wss.on('connection', function connection(ws) {
     });
   
   // poll the telemetry receiver at some interval and send the data
-  // to the websocket client. I'm still using the
-  // simulated data at this point
+  // to the websocket client. With a bit more code
+  // I could eliminate the setInterval polling and instead use an event from 
+  // the TelemetryReceiver, but hey..
   setInterval(() => {
     const {temperature,humidity} = ts.getTelemetry();
     console.log({temperature,humidity});

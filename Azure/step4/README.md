@@ -2,7 +2,7 @@
 
 At this point all the components are in place. Here is the final design diagram:
 
-![alt text](Azure/img/iot-experiment-4.png "IoT Experiment Design Final")
+![alt text](../img/iot-experiment-5.png "IoT Experiment Design Final")
 
 
 # Klaqr.com
