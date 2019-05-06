@@ -40,7 +40,7 @@ wss.on('connection', function connection(ws) {
 
 ```
 
-## TESTING
+## Testing
 For testing, I spawned this server on a local port 8081. A client webpage that wants to connect
 has to be able to connect to this port at whatever url the server is exposing. This might change
 once I deploy to a cloud client, but for testing with the browser and this server running on the same
