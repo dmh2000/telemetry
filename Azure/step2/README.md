@@ -6,15 +6,15 @@ I want to be able to just open a web page from anywhere and see the data.
 I pondered what architecture I would need. The web page should be dynamic, showing real time data, not a static one-shot. I occurred to me that 
 using a web page that has a websocket client connection to a websocket server (running somewhere in the cloud) would work. The actual web page
 could be served statically, and it would connect back to the websocket server to get real time updates. The websocket server would incorporate
-the IOT Hub client side code from ReadDeviceToCloudMessages to receive the data.
+the IoT Hub client side code from ReadDeviceToCloudMessages to receive the data.
 
 So here is an updated architecture diagram:
 
-![alt text](../img/iot-experiment-4.png "Beaglebone -> IOT HUB -> Client -> Websocket -> HTML") 
+![alt text](../img/iot-experiment-4.png "Beaglebone -> IoT HUB -> Client -> Websocket -> HTML") 
 
 ## Turn the ReadDeviceToCloudMessages.js Into a Node Module
 
-The ReadDeviceToCloudMessages.js file contains everything needed to receive the telemetry data from the IOT Hub. Now we need
+The ReadDeviceToCloudMessages.js file contains everything needed to receive the telemetry data from the IoT Hub. Now we need
 to incorporate it into a web socket server. First thing is to modify that file to be a nodejs module. I chose to 
 export its functionality as a class. Most of the code is exactly the same with some class scaffolding. 
 
@@ -32,16 +32,15 @@ class XYZ {
 ```
 
 That syntax is nice because it autobinds myMethod to the XYZ 'this', just like normal arrow functions. Unfortunately for me, I committed
-this code to my repo and then downloaded it to a different machine running nodejs version 10. It immediately barfed all ovedr that
+this code to my repo and then downloaded it to a different machine running nodejs version 10. It immediately barfed all over that
 code with syntax errors. It took me a minute to figure that out. So I changed the methods back to the conventional format, but then I
 had a bunch of incorrect 'this' problems that took me another minute to figure out. I was getting errors from the innards of
-the Azure IOT functions that didn't make sense. So I debugged and saw the callbacks had the wrong this. I changed my methods to 
+the Azure IoT functions that didn't make sense. So I debugged and saw the callbacks had the wrong this. I changed my methods to 
 bind them properly in the class constructor. I felt like I needed this to be portable to not require the latest JavaScript syntax.
 
-Anyway, here is what I ended up with for the class version (renamed to TelemetryReceiver.js)
+Anyway, here is what I ended up with for the class version (renamed to TelemetryReceiver.js). 
 
 ```javascript
-
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
@@ -53,7 +52,6 @@ Anyway, here is what I ended up with for the class version (renamed to Telemetry
 // to read messages sent from a device.
 const { EventHubClient, EventPosition } = require("@azure/event-hubs");
 
-// wrap it in a class definition
 class TelemetryReceiver {
   // Connection string for the IoT Hub service
   //
@@ -90,6 +88,7 @@ class TelemetryReceiver {
    * store the latest telemetry data in this.data
    */
   update (message) {
+    console.log(message.body);
     this.data = message.body;
   }
 
@@ -148,7 +147,6 @@ class TelemetryReceiver {
   }
 }
 
-// export the module
 module.exports = TelemetryReceiver;
 ```
 

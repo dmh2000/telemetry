@@ -1,4 +1,4 @@
-# STEP 1 - Set Up Azure IOT Device
+# STEP 1 - Set Up Azure IoT Device
 --------------------------------
 
 ## Create an account on Microsoft Azure
@@ -6,19 +6,19 @@
 If you don't already have one, go to [Microsoft Azure](https://azure.microsoft.com) and create a free account.
 You will get a $200.00 credit for 30 days, and a bunch of its services free for one year, plus another bunch
 that are always free. Check out the list here : [Microsoft Azure Free Account List](https://azure.microsoft.com/en-us/free/free-account-faq/).
-Most important for this project, the IOT Hub feature (what this project uses) is always free for 8000 messages per day.
+Most important for this project, the IoT Hub feature (what this project uses) is always free for 8000 messages per day.
 
 
 ## Go to the 'Portal'
   
-Once you have an account, you can go to the management portal to get started. Once at the portal, click '+ Create a Resource'. Then from
+Once you have an account, you can go to the management 'Portal' to get started. Once at the portal, click '+ Create a Resource'. Then from
 the list, select 'IoT Hub Quickstart Tutorial'. This quickstart sets up everything needed to get bare bones device telemetry working.
 Note that on Chrome it opens a new tab with the tutorial instructions. Keep the original Portal window open because the tutorial refers
 you back to the portal to actually do things.
 
 ## Prerequisites
   
-For the tutorial, before we deploy to the target IOT device, you can do the setup and test using your workstation (Linux, Mac or Windows). The quickstart requires one of several programming languages to be available. I am going to use JavaScript and NodeJS version 10. 
+For the tutorial, before we deploy to the target IoT device, you can do the setup and test using your workstation (Linux, Mac or Windows). The quickstart requires one of several programming languages to be available. I am going to use JavaScript and NodeJS version 10. 
  - it asks you to download the sample code from github in a zip file. I forked the containing repo instead and used my copy going forward so I could make changes and keep updates.
 
 ## Proceed with the Tutorial
@@ -28,18 +28,18 @@ to tell you anything. The tutorial is excellent. I am adding a few hints that ar
 
 Here are a few hints to help out:
   - when you activate the Azure CLI, you have to select Powershell or Bash as your terminal. Pick the one you prefer. It appears to me that the Azure 'az' commands are the same for both terminals. 
-  - when using the CLI, most things let you list what things you have installed. For example, the tutorial asks you to install the az IOT extension. Once you do that, you can check if it is there with 'az extension list -o table'. The '-o table' gives a summary list for all the list commands. Without it, you will probably get a JSON object with more information but a bit harder to read right off.
-  - The CLI appears to keep its configuration after you log off and return later. The IOT extension should still be there. At least, it is for me.
-  - One option with the CLI is to open a new browser tab and go the Azure portal again. Log in again if you need to. then you can start a new instance of the cloud shell and maximize it so you can use it separate from the portal window. The dialogs and pages to set up the IOT Hub take up a lot of space and having the CLI in a separate tab is helpful.
+  - when using the CLI, most things let you list what things you have installed. For example, the tutorial asks you to install the az IoT extension. Once you do that, you can check if it is there with 'az extension list -o table'. The '-o table' gives a summary list for all the list commands. Without it, you will probably get a JSON object with more information but a bit harder to read right off.
+  - The CLI appears to keep its configuration after you log off and return later. The IoT extension should still be there. At least, it is for me.
+  - One option with the CLI is to open a new browser tab and go the Azure portal again. Log in again if you need to. then you can start a new instance of the cloud shell and maximize it so you can use it separate from the portal window. The dialogs and pages to set up the IoT Hub take up a lot of space and having the CLI in a separate tab is helpful.
 
-## Create an IOT Hub
+## Create an IoT Hub
 
 Hints:
-- the tutorial will refer you back the the portal to start setting up the IOT hub. 
+- the tutorial will refer you back the the portal to start setting up the IoT hub. 
 - You will be creating several objects, a resource group, a hub and a device. Its best to name them consistently. In my case, I named the resource group iot-telemetry-resource, the hub iot-telemetry-hub, and the device iot-telemetry-bbb (for Beaglebone Blue). 
-- Even though I named the device with -bbb, the Azure IOT system doesn't really know which physical device you are using. You will be identifying the device with some authentication information, so for the tutorial you can use your workstation and later port that over to a real IOT device if you have one. 
-- When you get to the 'Size and Scale' page, you have to select the 'Scale Tier'. It suggests 'S1:Standard Tier'. You can change this to 'F1:Free Tier' to avoid a charge. The IOT support in the free tier is limited (8000 messages per day) but for familarizing with the whole process it is best. Once you really know what you are doing and want a real system you can start over with a paid tier. You can only have one IOT hub in the free tier so consider it a playground for learning.
-- You can bail out of the IOT Hub create wizard until you click the 'Create' button. You will lose your edits but there aren't that many so if you don't like something you selected or just want to quit you can bail and nothing is created.
+- Even though I named the device with -bbb, the Azure IoT system doesn't really know which physical device you are using. You will be identifying the device with some authentication information, so for the tutorial you can use your workstation and later port that over to a real IoT device if you have one. 
+- When you get to the 'Size and Scale' page, you have to select the 'Scale Tier'. It suggests 'S1:Standard Tier'. You can change this to 'F1:Free Tier' to avoid a charge. The IoT support in the free tier is limited (8000 messages per day) but for familarizing with the whole process it is best. Once you really know what you are doing and want a real system you can start over with a paid tier. You can only have one IoT hub in the free tier so consider it a playground for learning.
+- You can bail out of the IoT Hub create wizard until you click the 'Create' button. You will lose your edits but there aren't that many so if you don't like something you selected or just want to quit you can bail and nothing is created.
 - Once you click 'Create' it takes a minute or two for the provisioning to complete.
 
 ## Register a Device
@@ -49,7 +49,7 @@ Hints:
    - go the the dashboard.
    - click 'Resource Groups'
    - click the resource group you just created. it will take you to the list of resourcees.
-   - your new IOT hub will be listed. click it
+   - your new IoT hub will be listed. click it
    - in the list to the left, click 'IoT devices'. 
    - to add a new one, click '+ Add'. 
 
@@ -86,12 +86,12 @@ subscription you are using in the GUI and CLI. If you are enough of an expert to
 to figure out how to set them. If you don't ensure you set them properly, you'll get strange messages like 'that object doesn't exist', 
 even though you just created it (because it is on a different subscription).
 
-## Deploy to real IOT device
+## Deploy to real IoT device
 
-Since I forked the repo all I need to do is log in to my Beaglebone, clone the repo, and set up the Quickstart simulated device as above in 'Send Simualted Telemetry'.
+Since I forked the repo all I need to do is log in to my Beaglebone, clone the repo, and set up the Quickstart simulated device as above in 'Send Simulated Telemetry'.
 I had Node version 10 installed on my BeagleBone. I just set up the device connection string as an environment variable, did "npm install" in the simulated-device directory,
 and ran the program. I used my workstation as the receiving end, running the ReadDeviceToCloudMessages.js there. It worked without modification.
-This reinforces that you can do much of your development for the IOT device on  your workstation and only deploy to the IOT device when ready. 
+This reinforces that you can do much of your development for the IoT device on  your workstation and only deploy to the IoT device when ready. 
 
 ## Appendix A The Protocol
 
@@ -106,14 +106,14 @@ This example uses the Message Queue Telemetry Transport
 
 Encryption is NOT part of the base MQTT protocol standard. If encryption is required, then the connections should use MQTT over SSL. So don't send anything on a plain  MQTT protocol that is secret, personal or you otherwise don't want other folks to know. This is not a problem with the Azure toolkit.
 
-Here's my understanding of what security is by default in the Azure IOT samples. 
- - The messages are authenticated using the secret key in the connection string. So you must have the secret key in order to talk to the IOT hub endpoint. This ensures that only messages from endpoints that have the secret key are accepted.
- - The MQTT transport is encrypted with TLS by default. This prevents traffic sniffing. [Azure IOT Hub Security](https://docs.microsoft.com/en-us/azure/iot-fundamentals/iot-security-ground-up). I also verified using Wireshark, just in case I didn't understand the documentation. 
+Here's my understanding of what security is by default in the Azure IoT samples. 
+ - The messages are authenticated using a token generated by a shared secret key in the connection string. So you must have the secret key in order to talk to the IoT hub endpoint. This ensures that only messages from endpoints that have the secret key are accepted.
+ - The Azure MQTT transport is encrypted with TLS by default. This prevents traffic sniffing. [Azure IoT Hub Security](https://docs.microsoft.com/en-us/azure/iot-fundamentals/iot-security-ground-up). I also verified using Wireshark, just in case I didn't understand the documentation. 
 
 
 ## Appendix B - SimulatedDevice.js
 
-This is what runs on the IOT device. It connects to the IOT Hub service and sends periodic messages. It actually is a decent baseline for my app, just adding the right data to it.
+This is what runs on the IoT device. It connects to the IoT Hub service and sends periodic messages. It actually is a decent baseline for my app, just adding the right data to it.
 
 ```javascript
 // Using the Azure CLI:
@@ -157,7 +157,7 @@ setInterval(function(){
 ```
 ## Appendix C - ReadDeviceToCloudMessages.js
 
-This is what runs on the IOT device. It connects to the IOT Hub service and sends periodic messages. It actually is a decent baseline for my app, just adding the right data to it.
+This is what runs on the IoT device. It connects to the IoT Hub service and sends periodic messages. It actually is a decent baseline for my app, just adding the right data to it.
 
 ```javascript
 // Using the Azure CLI:
@@ -211,7 +211,7 @@ EventHubClient.createFromIotHubConnectionString(connectionString).then(function 
 ```
 ## Next
 
-At this point, we have the simulated device that can send data to the IOT Hub, and a receiver that gets the data from the IOT hub. I set up
+At this point, we have the simulated device that can send data to the IoT Hub, and a receiver that gets the data from the IoT hub. I set up
 the sender running on a Beaglebone , and went to Starbucks with my laptop to see if I could get the data outside of my local network. Sure enough
 I ran the ReadDeviceToCouldMessages.js program and it started receiving the simulated data. 
 
