@@ -1,5 +1,5 @@
-Internet-of-Things Telemetry on Microsoft Azure
------------------------------------------------
+Internet-of-Things Simple Telemetry on Microsoft Azure
+------------------------------------------------------
 
 Using an IoT device with some sensors on it, I want to be able to monitor them in real time
 from anywhere I have cellular or wifi access, and send commands to the device. The purpose of this experiment is to see what pieces, software and hardware, 
