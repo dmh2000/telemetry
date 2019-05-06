@@ -157,7 +157,7 @@ setInterval(function(){
 ```
 ## Appendix C - ReadDeviceToCloudMessages.js
 
-This is what runs on the IoT device. It connects to the IoT Hub service and sends periodic messages. It actually is a decent baseline for my app, just adding the right data to it.
+This is what runs on a client somewhere. It connects to the IoT Hub service and sends periodic messages. Again it is a decent baseline for my app, just adding the right data to it.
 
 ```javascript
 // Using the Azure CLI:
