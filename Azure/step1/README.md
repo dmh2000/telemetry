@@ -1,5 +1,5 @@
-# STEP 1 - Set Up Azure IoT Device
---------------------------------
+# STEP 1 - Set Up And Test Azure IoT Device
+-------------------------------------------
 
 ## Create an account on Microsoft Azure
   
@@ -217,6 +217,6 @@ I ran the ReadDeviceToCouldMessages.js program and it started receiving the simu
 
 Here's the setup I have so far:
 
-![alt text](../img/iot-experiment-3.png "Beaglebone to Laptop") 
+![alt text](../img/iot-experiment-3.png "Beaglebone to Laptop")  
 
-Go to [Step 2](../step2/README.md).
+Go to [Step 2](../step2/README.md). Turn the client side Azure IoT code into a node module.

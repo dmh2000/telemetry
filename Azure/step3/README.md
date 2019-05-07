@@ -1,4 +1,4 @@
-# Step 3 Create a Websocket Server with the TelemetryReceiver
+# Step 3 Create a Websocket Server Backend and HTML Frontend
 
 Creating a nodejs websocket server is very simple. I used the ['ws' node module](https://github.com/websockets/ws). 
 I started with their 'Simple Server' example, modified to to get data from the TelemetryReceiver.

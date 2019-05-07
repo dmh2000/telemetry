@@ -1,10 +1,11 @@
-# Step 2 - Create a Client Side App
+# Step 2 - Turn the Client Side Azure IoT Code into a Node Module.
 
 The setup I have so far is not complete. To get it to work, you have to run an application (in this case nodejs) on monitoring laptop to receive and display the data. 
 I want to be able to just open a web page from anywhere and see the data.  
 
 I pondered what architecture I would need. The web page should be dynamic, showing real time data, not a static one-shot. I occurred to me that 
-using a web page that has a websocket client connection to a websocket server (running somewhere in the cloud) would work. The actual web page
+using a web page that has a websocket client connection to a websocket server (running somewhere in the cloud) would work. That approach
+provides an efficient way to get get dynamic data to the html frontend without page refresh. The actual web page
 could be served statically, and it would connect back to the websocket server to get real time updates. The websocket server would incorporate
 the IoT Hub client side code from ReadDeviceToCloudMessages to receive the data.
 

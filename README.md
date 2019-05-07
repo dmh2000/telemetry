@@ -103,24 +103,15 @@ piece of hardware. This allows replacement or upgrade of devices without require
 Go to [Step 1](Azure/step1/README.md). During the setup you will be following a tutorial on the Azure website, but the step 1 readme has some extra information and 
 hints that can help out when doing the tutorial.
 
-## Step 2 - Azure Sending Commands to the IoT Device
+## Step 2 - Modularize the Client Side Receiver
 
-Now that the IoT device is sending its data to Azure, and I can read it from my workstation,  I need to see how to send commands to the device.
+Go to [Step 2](Azure/step2/README.md).  Turn the client side Azure IoT code into a node module.
 
-Go to [Step 2](Azure/step2/README.md). You will be following the next step in the Azure IoT tutorial.
+## Step 3 - Create a Websocket Server Backend and HTML Frontend
 
-## Step 3 - IoT Device Application
+Go to [Step 3](Azure/step3/README.md).  Create the actual client side websocket server
 
-Go to [Step 3](Azure/step3/README.md).  Create the actual application to run on the IoT device. 
+## Step 4 -  Deploy Solution to the Web
 
-## Step 4 - Web Server Backend
+Go to [Step 4](Azure/step4/README.md).  Deploy the solution.
 
-Go to [Step 4](Azure/step4/README.md).  Creating the web server backend that reads the IoT device telemetry and forwards commands to it.to run on the IoT device. 
-
-## Step 5 - Web Frontend
-
-Go to [Step 5](Azure/step5/README.md). Create the web app  
-
-# AWS
-
-# Comparison and Conclusions
