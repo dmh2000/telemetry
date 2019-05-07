@@ -4,7 +4,6 @@ At this point all the components are in place. Here is the final design diagram:
 
 ![alt text](../img/iot-experiment-5.png "IoT Experiment Design Final")
 
-
 # Klaqr.com
  
 Here is a web site running the application [klaqr.com](https://klaqr.com).
