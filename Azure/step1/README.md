@@ -11,8 +11,8 @@ Most important for this project, the IoT Hub feature (what this project uses) is
 
 ## Go to the 'Portal'
   
-Once you have an account, you can go to the management 'Portal' to get started. Once at the portal, click '+ Create a Resource'. Then from
-the list, select 'IoT Hub Quickstart Tutorial'. This quickstart sets up everything needed to get bare bones device telemetry working.
+Once you have an account, you can go to the management 'Portal' to get started. Once at the portal, click '+ Create a Resource'. Then from the Azure Marketplace list, select 'Internet of Things'. Then from the new
+list, select 'IoT Hub Quickstart Tutorial'. This quickstart sets up everything needed to get bare bones device telemetry working.
 Note that on Chrome it opens a new tab with the tutorial instructions. Keep the original Portal window open because the tutorial refers
 you back to the portal to actually do things.
 
@@ -157,7 +157,7 @@ setInterval(function(){
 ```
 ## Appendix C - ReadDeviceToCloudMessages.js
 
-This is what runs on the IoT device. It connects to the IoT Hub service and sends periodic messages. It actually is a decent baseline for my app, just adding the right data to it.
+This is what runs on a client somewhere. It connects to the IoT Hub service and sends periodic messages. Again it is a decent baseline for my app, just adding the right data to it.
 
 ```javascript
 // Using the Azure CLI:
