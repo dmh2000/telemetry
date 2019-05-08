@@ -26,6 +26,7 @@ Here's the process. It will guide you step by step but here are some hints to he
   - click 'View connection options' in the 'Connect to AWS IoT' box.
   - click 'Get started' in the 'Configuring a device' box.
   - It shows you the three steps in the setup process. Click 'Get Started'
+  - **From here you can just follow their instructions and skip the rest of this list. Or work along with the following items if you want more detail**
   - It asks you to choose a platform. Although the actual Nodejs code is platform independent, their startup code has a shell script that is dependent on either Linux or Windows, so you have to pick.
     - I chose the Node.js SDK.
     - It says you need to be able to connect to the internet (duh)
@@ -82,12 +83,114 @@ code in there and runs it. This is a bit inconvenient to use, so the next thing 
   - Click 'Monitor' in the list on the left. It will show some graphs and you shoud see a couple of dots in 'Messages published' and some activity in the circle charts.
   - It both of these work, you are done here for now.
 
-## Deploy to an IoT device
+## Split device-example.js into a server and a client.
 
-Since I forked the repo all I need to do is log in to my Beaglebone, clone the repo, and set up the Quickstart simulated device as above in 'Send Simulated Telemetry'.
-I had Node version 10 installed on my BeagleBone. I just set up the device connection string as an environment variable, did "npm install" in the simulated-device directory,
-and ran the program. I used my workstation as the receiving end, running the ReadDeviceToCloudMessages.js there. It worked without modification.
-This reinforces that you can do much of your development for the IoT device on  your workstation and only deploy to the IoT device when ready. 
+  In my design, I have the device 'server' publishing messages, and a client receiving them. So I don't need the device example to do both functions. So I split
+  it into server.js and client.js.  That takes a bit of refactoring. You can work in the same directory as before OR start fresh in a clean one. I started fresh.
+  We'll have the server publish 'topic_1' to the client. 
+
+  - in an empty directory, do 'npm init' and either accept the defaults or change them if you like. 
+  - copy over the key and certificate files (4 of them include the root CA)
+  - copy device-example.js to this new directory and rename it server.js
+  - copy device-example.js to this new directory and rename it client.js
+  - copy the modified startup script (just the node command), rename it to run-server.[sh or .cmd] and change the target js file to server.js.
+  - copy the modified startup script (just the node command), rename it to run-client.[.sh or .cmd]and change the target js file to client.js.
+  - really, just name the two scripts to whatever you like. one runs the server and one runs the client.
+  - you can add run commands to package.json for running the two if you prefer
+  
+### Edit server.js
+
+The server will send an update every 5 seconds. So next remove the client side 'subscribe' support and leave the publish part.
+
+```javascript
+   // server.js
+   // ---------------------------------------------------------------------
+   // CODE FROM BEGINNING OF FILE TO HERE IS NOT CHANGED
+   // ---------------------------------------------------------------------
+   // HERE ARE THE ONLY CHANGES TO SERVER.JS
+   // simplify the interval and just publish topic_1 every 5 seconds
+   // ---------------------------------------------------------------------
+   var timeout;
+   var count = 0;
+   timeout = setInterval(function() {
+      count++;
+
+      device.publish('topic_1', JSON.stringify({
+         mode1Process: count
+      }));
+
+      // add a console.log so we know its sending
+      console.log('sending : ', JSON.stringify({
+         mode1Process: count
+      }));
+
+   }, 5000);
+
+   //
+   // --------------------------------------
+   // THE REST OF THE CODE IS NOT CHANGED
+   // --------------------------------------
+   
+```
+
+### Edit client.js
+
+The client will just listen for published messages. So remove the 'publish' code and just listen for subscribed messages.
+
+```javascript   
+   // client.js
+   // ---------------------------------------------------------------------
+   // CODE FROM BEGINNING OF FILE TO HERE IS NOT CHANGED
+   // ---------------------------------------------------------------------
+   // HERE ARE THE ONLY CHANGES TO CLIENT.JS
+   // remove the public interval and just subscribe to topic_1
+   // ---------------------------------------------------------------------
+   // var timeout;
+   // var count = 0;
+   // const minimumDelay = 250;
+
+  // remove the 'if' and just subscript
+  device.subscribe('topic_1');
+
+   /* REMOVE THIS
+   if ((Math.max(args.delay, minimumDelay)) !== args.delay) {
+      console.log('substituting ' + minimumDelay + 'ms delay for ' + args.delay + 'ms...');
+   }
+   timeout = setInterval(function() {
+      count++;
+
+      if (args.testMode === 1) {
+         device.publish('topic_2', JSON.stringify({
+            mode1Process: count
+         }));
+      } else {
+         device.publish('topic_1', JSON.stringify({
+            mode2Process: count
+         }));
+      }
+   }, Math.max(args.delay, minimumDelay)); // clip to minimum
+  */
+   //
+   // --------------------------------------
+   // THE REST OF THE CODE IS NOT CHANGED
+   // --------------------------------------
+```
+
+## TEST the changes
+
+Before you run the server and client, one change to the client startup script is required. If you look at the 
+startup script, the last argument is '--client-id=...'. This is an identifier that is sent to the AWS IoT Core service to identify the
+actor that is sending or receiving. It can be any arbitrary id string. The AWS example just happens to use a UUID looking thing, which makes sense
+in a real deployment. 
+The only requirement is that the server.js and the client.js have different client-id's. I missed this at first and 
+my client and server kept disconnecting and reconnecting. I had to google a bit to find out what the --client-id had to be. 
+Anyway, just change the client-id in the client.cmd script to something else. I just changed the last number in the UUID. But you can make them anything
+as long as the server and client are started with different client-id's.
+
+In separate terminals, run the server.js startup script and the client.js startup script. If everything is correct, you should see output on both.
+
+The nice thing about using the AWS IoT service with the MQTT publish/subscribe model is that either end, server or client, can start and stop as needed and
+they don't need complex connection management in the code. The MQTT service handles all that. 
 
 ## Appendix A The Protocol
 
@@ -100,116 +203,243 @@ This example uses the Message Queue Telemetry Transport
 
 ### Authentication and Encryption
 
-Encryption is NOT part of the base MQTT protocol standard. If encryption is required, then the connections should use MQTT over SSL. So don't send anything on a plain  MQTT protocol that is secret, personal or you otherwise don't want other folks to know. This is not a problem with the Azure toolkit.
+Encryption is NOT part of the base MQTT protocol standard. If encryption is required, then the connections should use MQTT over SSL. So don't send anything on a plain  MQTT protocol that is secret, personal or you otherwise don't want other folks to know. This is not a problem with the AWS IoT toolkit.
 
-Here's my understanding of what security is by default in the Azure IoT samples. 
- - The messages are authenticated using a token generated by a shared secret key in the connection string. So you must have the secret key in order to talk to the IoT hub endpoint. This ensures that only messages from endpoints that have the secret key are accepted.
- - The Azure MQTT transport is encrypted with TLS by default. This prevents traffic sniffing. [Azure IoT Hub Security](https://docs.microsoft.com/en-us/azure/iot-fundamentals/iot-security-ground-up). I also verified using Wireshark, just in case I didn't understand the documentation. 
+Here's my understanding of what security is by default in the AWS IoT samples. 
+ - The messages are authenticated using public key encryption with certificates for each device. 
+ - The AWS MQTT transport is encrypted with TLS by default. This prevents traffic sniffing. [AWS IoT Hub Security](https://docs.aws.amazon.com/iot/latest/developerguide/iot-security-identity.html). I also verified using Wireshark, just in case I didn't understand the documentation. 
 
 
-## Appendix B - SimulatedDevice.js
+## Appendix B - server.js
 
 This is what runs on the IoT device. It connects to the IoT Hub service and sends periodic messages. It actually is a decent baseline for my app, just adding the right data to it.
 
 ```javascript
-// Using the Azure CLI:
-// don't hard code the connection string. use an environment variable
-var connectionString = process.env.IOT_DEVICE_CONNECTION;
+/*
+ * Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
 
-// Using the Node.js Device SDK for IoT Hub:
-// The sample connects to a device-specific MQTT endpoint on your IoT Hub.
-var Mqtt         = require('azure-iot-device-mqtt').Mqtt;
-var DeviceClient = require('azure-iot-device').Client
-var Message      = require('azure-iot-device').Message;
+//node.js deps
 
-var client = DeviceClient.fromConnectionString(connectionString, Mqtt);
+//npm deps
 
-// Create a message and send it to the IoT hub every second
-setInterval(function(){
-  // Simulate telemetry.
-  var temperature = 20 + (Math.random() * 15);
+//app deps
+const deviceModule = require("aws-iot-device-sdk").device;
+const cmdLineProcess = require('./node_modules/aws-iot-device-sdk/examples/lib/cmdline');
 
-  // the message itself is JSON
-  var message = new Message(JSON.stringify({
-    temperature: temperature,
-    humidity: 60 + (Math.random() * 20)
-  }));
 
-  // Add a custom application property to the message.
-  // An IoT hub can filter on these properties without access to the message body.
-  message.properties.add('temperatureAlert', (temperature > 30) ? 'true' : 'false');
+//begin module
 
-  console.log('Sending message: ' + message.getData());
+function processTest(args) {
+   //
+   // The device module exports an MQTT instance, which will attempt
+   // to connect to the AWS IoT endpoint configured in the arguments.
+   // Once connected, it will emit events which our application can
+   // handle.
+   //
+   const device = deviceModule({
+      keyPath: args.privateKey,
+      certPath: args.clientCert,
+      caPath: args.caCert,
+      clientId: args.clientId,
+      region: args.region,
+      baseReconnectTimeMs: args.baseReconnectTimeMs,
+      keepalive: args.keepAlive,
+      protocol: args.Protocol,
+      port: args.Port,
+      host: args.Host,
+      debug: args.Debug
+   });
+   // ---------------------------------------------------------------------
+   // CODE FROM BEGINNING OF FILE TO HERE IS NOT CHANGED
+   // ---------------------------------------------------------------------
+   var timeout;
+   var count = 0;
 
-  // Send the message once every second
-  client.sendEvent(message, function (err) {
-    if (err) {
-      console.error('send error: ' + err.toString());
-    } else {
-      console.log('message sent');
-    }
-  });
-}, 1000);
+   // simplify the interval and just publish topic_1 every 5 seconds
+   timeout = setInterval(function() {
+      count++;
+
+      device.publish('topic_1', JSON.stringify({
+         mode1Process: count
+      }));
+
+      console.log('sending :', JSON.stringify({
+         mode1Process: count
+      }));      
+   }, 5000);
+
+   //
+   // --------------------------------------
+   // THE REST OF THE CODE IS NOT CHANGED
+   // --------------------------------------
+   // Do a simple publish/subscribe demo based on the test-mode passed
+   // in the command line arguments.  If test-mode is 1, subscribe to
+   // 'topic_1' and publish to 'topic_2'; otherwise vice versa.  Publish
+   // a message every four seconds.
+   //
+   device
+      .on('connect', function() {
+         console.log('connect');
+      });
+   device
+      .on('close', function() {
+         console.log('close');
+      });
+   device
+      .on('reconnect', function() {
+         console.log('reconnect');
+      });
+   device
+      .on('offline', function() {
+         console.log('offline');
+      });
+   device
+      .on('error', function(error) {
+         console.log('error', error);
+      });
+   device
+      .on('message', function(topic, payload) {
+         console.log('message', topic, payload.toString());
+      });
+
+}
+
+module.exports = cmdLineProcess;
+
+if (require.main === module) {
+   cmdLineProcess('connect to the AWS IoT service and publish/subscribe to topics using MQTT, test modes 1-2',
+      process.argv.slice(2), processTest);
+}
 ```
-## Appendix C - ReadDeviceToCloudMessages.js
+## Appendix C - client.js
 
 This is what runs on a client somewhere. It connects to the IoT Hub service and sends periodic messages. Again it is a decent baseline for my app, just adding the right data to it.
 
 ```javascript
-// Using the Azure CLI:
-// az iot hub show-connection-string --hub-name {YourIoTHubName} --output table
-const connectionString = process.env.IOT_HUB_CONNECTION;
+/*
+ * Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
 
-// Using the Node.js SDK for Azure Event hubs:
-//   https://github.com/Azure/azure-event-hubs-node
-const { EventHubClient, EventPosition } = require('@azure/event-hubs');
+//node.js deps
 
-// CALLBACK FUNCTION
-const printError = function (err) {
-  console.log(err.message);
-};
+//npm deps
 
-// CALLBACK FUNCTION
-// Display the message content - telemetry and properties.
-// - Telemetry is sent in the message body
-// - The device can add arbitrary application properties to the message
-// - IoT Hub adds system properties, such as Device Id, to the message.
-const printMessage = function (message) {
-  // this is the message body, JSON encoded
-  console.log('Telemetry received: ');
-  console.log(JSON.stringify(message.body));
-  
-  // this is the properties object, such as the alert code in SimulatedDevice.js
-  console.log('Application properties (set by device): ')
-  console.log(JSON.stringify(message.applicationProperties));
+//app deps
+// FROM const deviceModule = require('..').device;
+// TO
+const deviceModule = require("aws-iot-device-sdk").device;
 
-  // other info set by the Azure IO Hub
-  console.log('System properties (set by IoT Hub): ')
-  console.log(JSON.stringify(message.annotations));
-  console.log('');
-};
+// FROM const cmdLineProcess = require('./lib/cmdline');
+// TO
+const cmdLineProcess = require('./node_modules/aws-iot-device-sdk/examples/lib/cmdline');
 
-// SUBSCRIBE TO THE IO DEVICE MESSAGE
-// Connect to the partitions on the IoT Hub's Event Hubs-compatible endpoint.
-// This example only reads messages sent after this application started.
-let ehClient;
-EventHubClient.createFromIotHubConnectionString(connectionString).then(function (client) {
-  console.log("Successully created the EventHub Client from iothub connection string.");
-  ehClient = client;
-  return ehClient.getPartitionIds();
-}).then(function (ids) {
-  console.log("The partition ids are: ", ids);
-  return ids.map(function (id) {
-    return ehClient.receive(id, printMessage, printError, { eventPosition: EventPosition.fromEnqueuedTime(Date.now()) });
-  });
-}).catch(printError);
 
+//begin module
+
+function processTest(args) {
+   //
+   // The device module exports an MQTT instance, which will attempt
+   // to connect to the AWS IoT endpoint configured in the arguments.
+   // Once connected, it will emit events which our application can
+   // handle.
+   //
+   const device = deviceModule({
+      keyPath: args.privateKey,
+      certPath: args.clientCert,
+      caPath: args.caCert,
+      clientId: args.clientId,
+      region: args.region,
+      baseReconnectTimeMs: args.baseReconnectTimeMs,
+      keepalive: args.keepAlive,
+      protocol: args.Protocol,
+      port: args.Port,
+      host: args.Host,
+      debug: args.Debug
+   });
+ // ---------------------------------------------------------------------
+   // CODE FROM BEGINNING OF FILE TO HERE IS NOT CHANGED
+   // ---------------------------------------------------------------------
+   // HERE ARE THE ONLY CHANGES TO CLIENT.JS
+   // remove the public interval and just subscribe to topic_1
+   // ---------------------------------------------------------------------
+   // var timeout;
+   // var count = 0;
+   // const minimumDelay = 250;
+
+  // remove the 'if' and just subscribe
+  device.subscribe('topic_1');
+
+   // ---------------------------------------------------------------------
+   // REST OF CODE IS UNCHANGED
+   // ---------------------------------------------------------------------
+   //
+   // Do a simple publish/subscribe demo based on the test-mode passed
+   // in the command line arguments.  If test-mode is 1, subscribe to
+   // 'topic_1' and publish to 'topic_2'; otherwise vice versa.  Publish
+   // a message every four seconds.
+   //
+   device
+      .on('connect', function() {
+         console.log('connect');
+      });
+   device
+      .on('close', function() {
+         console.log('close');
+      });
+   device
+      .on('reconnect', function() {
+         console.log('reconnect');
+      });
+   device
+      .on('offline', function() {
+         console.log('offline');
+      });
+   device
+      .on('error', function(error) {
+         console.log('error', error);
+      });
+   device
+      .on('message', function(topic, payload) {
+         console.log('message', topic, payload.toString());
+      });
+
+}
+
+module.exports = cmdLineProcess;
+
+if (require.main === module) {
+   cmdLineProcess('connect to the AWS IoT service and publish/subscribe to topics using MQTT, test modes 1-2',
+      process.argv.slice(2), processTest);
+}
 ```
 ## Next
 
 At this point, we have the simulated device that can send data to the IoT Hub, and a receiver that gets the data from the IoT hub. I set up
 the sender running on a Beaglebone , and went to Starbucks with my laptop to see if I could get the data outside of my local network. Sure enough
-I ran the ReadDeviceToCouldMessages.js program and it started receiving the simulated data. 
+I ran the client.js program and it started receiving the simulated data. 
 
 Here's the setup I have so far:
 
