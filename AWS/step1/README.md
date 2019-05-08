@@ -1,92 +1,88 @@
-# STEP 1 - Set Up And Test Azure IoT Device
+# STEP 1 - Set Up And Test AWS IoT Device
 -------------------------------------------
 
-## Create an account on Microsoft Azure
+## Create an account on Amazon AWS
   
-If you don't already have one, go to [Microsoft Azure](https://azure.microsoft.com) and create a free account.
+If you don't already have one, go to [Amazon AWS](https://aws.amazon.com) and create a free account.
 You will get a $200.00 credit for 30 days, and a bunch of its services free for one year, plus another bunch
-that are always free. Check out the list here : [Microsoft Azure Free Account List](https://azure.microsoft.com/en-us/free/free-account-faq/).
-Most important for this project, the IoT Hub feature (what this project uses) is always free for 8000 messages per day.
-
-
-## Go to the 'Portal'
-  
-Once you have an account, you can go to the management 'Portal' to get started. Once at the portal, click '+ Create a Resource'. Then from the Azure Marketplace list, select 'Internet of Things'. Then from the new
-list, select 'IoT Hub Quickstart Tutorial'. This quickstart sets up everything needed to get bare bones device telemetry working.
-Note that on Chrome it opens a new tab with the tutorial instructions. Keep the original Portal window open because the tutorial refers
-you back to the portal to actually do things.
+that are always free. Check out the list here : [Amazon AWS Free Tier](https://aws.amazon.com/free).
+Most important for this project, the IoT feature (what this project uses) is always free for 250,000 messages (sent and received) per month.
 
 ## Prerequisites
   
-For the tutorial, before we deploy to the target IoT device, you can do the setup and test using your workstation (Linux, Mac or Windows). The quickstart requires one of several programming languages to be available. I am going to use JavaScript and NodeJS version 10. 
- - it asks you to download the sample code from github in a zip file. I forked the containing repo instead and used my copy going forward so I could make changes and keep updates.
+Before we deploy to the target IoT device, you can do the setup and test using your workstation (Linux, Mac or Windows). The setup requires one of several programming languages to be available. I am going to use JavaScript and NodeJS version 10. So its best to go ahead and have that installed. Any node from version 6 to 12.
 
-## Proceed with the Tutorial
-
-This tutorial was very easy to follow so **just follow it exactly and everything will work out**. In fact, you don't really need me
-to tell you anything. The tutorial is excellent. I am adding a few hints that are worth reading but they aren't necessary to complete the tutorial.
-
-Here are a few hints to help out:
-  - when you activate the Azure CLI, you have to select Powershell or Bash as your terminal. Pick the one you prefer. It appears to me that the Azure 'az' commands are the same for both terminals. 
-  - when using the CLI, most things let you list what things you have installed. For example, the tutorial asks you to install the az IoT extension. Once you do that, you can check if it is there with 'az extension list -o table'. The '-o table' gives a summary list for all the list commands. Without it, you will probably get a JSON object with more information but a bit harder to read right off.
-  - The CLI appears to keep its configuration after you log off and return later. The IoT extension should still be there. At least, it is for me.
-  - One option with the CLI is to open a new browser tab and go the Azure portal again. Log in again if you need to. then you can start a new instance of the cloud shell and maximize it so you can use it separate from the portal window. The dialogs and pages to set up the IoT Hub take up a lot of space and having the CLI in a separate tab is helpful.
-
-## Create an IoT Hub
-
-Hints:
-- the tutorial will refer you back the the portal to start setting up the IoT hub. 
-- You will be creating several objects, a resource group, a hub and a device. Its best to name them consistently. In my case, I named the resource group iot-telemetry-resource, the hub iot-telemetry-hub, and the device iot-telemetry-bbb (for Beaglebone Blue). 
-- Even though I named the device with -bbb, the Azure IoT system doesn't really know which physical device you are using. You will be identifying the device with some authentication information, so for the tutorial you can use your workstation and later port that over to a real IoT device if you have one. 
-- When you get to the 'Size and Scale' page, you have to select the 'Scale Tier'. It suggests 'S1:Standard Tier'. You can change this to 'F1:Free Tier' to avoid a charge. The IoT support in the free tier is limited (8000 messages per day) but for familarizing with the whole process it is best. Once you really know what you are doing and want a real system you can start over with a paid tier. You can only have one IoT hub in the free tier so consider it a playground for learning.
-- You can bail out of the IoT Hub create wizard until you click the 'Create' button. You will lose your edits but there aren't that many so if you don't like something you selected or just want to quit you can bail and nothing is created.
-- Once you click 'Create' it takes a minute or two for the provisioning to complete.
-
-## Register a Device
-
-Hints:
- - the tutorial has you register your device using the CLI. This helps learn how to use the CLI, so eventually, like all pro's, you would do most things with a command line rather than wizards. However, you can create a device using a wizard. The first time through, follow the tutorial. Later, you can experiment with the wizard.
-   - go the the dashboard.
-   - click 'Resource Groups'
-   - click the resource group you just created. it will take you to the list of resourcees.
-   - your new IoT hub will be listed. click it
-   - in the list to the left, click 'IoT devices'. 
-   - to add a new one, click '+ Add'. 
-
- - When it tells you to 'make a note of' something in the CLI, it means copy it and paste it somewhere. Most of these are too long to 'make a note of'. 
- - **Don't include the connection strings and crypto keys in a public git/gitlab/github/etc repo.**
-
-## Send Telemetry
-
-Hints:
- - do this on your workstation to start.
- - the tutorial tells you to edit the file SimulatedDevice.js and paste in the connection string you got in the previous step. That's ok for this test, but its bad practice to hard code the string. Not only is it inflexible, the real problem is if you put this file in a public git repo, everyone can see your connection keys and do nefarious things with them. The proper way to include the key is to export it in an environment variable or other source that is not stored in the repo, and then use your language facility to read that variable at runtime.
- - Other than setting the connection strings, the two files should run and show good results. 
- - 
-## Receive Telemetry
-
-Hints:
- - note that in the ReadDeviceToCloudMessages.js file, the proper way to use a connection string is used.
- - Other than setting the connection strings, the two files should run and show good results. 
+## Go to the 'Portal'
   
-## METRICS
+Once you have an account, sign in to the AWS Management Console. In the search box type 'internet of things'. Select 'IoT Core. It will probably start
+on the 'Monitor' screen. At the bottom of the list on the left is 'Learn'. Click that. This gives you some choices. 
+You might want to do the tutorial first but you don't need that for this process. 
 
-One thing the tutorial doesn't show is that the Azure dashboard will let you see metrics of activity of whatever you are doing, in this case sending and
-receiving telemetry messages. 
-   - go to the Dashboard
-   - click 'All resources'
-   - click your iot hub name
-   - in the menu for the hub, scroll down to 'Monitoring' and select 'Metrics'. you can see various graphs of what activity occurred.
+## Proceed with the Setup
 
-## Note on multiple Azure subscriptions
+This process is sort of easy to follow but it isn't quite as step-by-step as the Azure Quickstart. 
 
-Note: if you have more than one subscription to Azure, say from an MSDN subscription and a Technet subscription, you will need to be
-sure when you are using the Azure GUI and CLI that you are using is the same all the way through the tutorial. You can specify which
-subscription you are using in the GUI and CLI. If you are enough of an expert to have more than one subscription,  I'll leave it to your
-to figure out how to set them. If you don't ensure you set them properly, you'll get strange messages like 'that object doesn't exist', 
-even though you just created it (because it is on a different subscription).
+Here's the process. It will guide you step by step but here are some hints to help out.
+  - click 'View connection options' in the 'Connect to AWS IoT' box.
+  - click 'Get started' in the 'Configuring a device' box.
+  - It shows you the three steps in the setup process. Click 'Get Started'
+  - It asks you to choose a platform. Although the actual Nodejs code is platform independent, their startup code has a shell script that is dependent on either Linux or Windows, so you have to pick.
+    - I chose the Node.js SDK.
+    - It says you need to be able to connect to the internet (duh)
+    - Once you have selected platform and SDK, clock 'Next'
+  - It will ask you to give your device a name. I prefer some sort of naming convention, so I named it 'aws-iot-device-bbb' (bbb for beaglebone blue). The only rule here is that device names need to be unique in your account.
+  - It offers to let you do optional configuration but you can skip this for now.
+  - click 'Next step'.
+  - You see 'Download a connection kit' and it shows a summary of what you are getting. If you are happy with that, click the download button. It will download a zip file. Don't do anything with that yet.
+  - click 'Next Step'
+  - You will see a list of 3 steps to get an example running. Pick a place to unzip the SDK then follow the three steps. They are different on Windows or Linux. 
+    - You need to use Powershell on Windows, bash or compatible on Linux.
+  - I recommend that after you unzip the SDK file into an empty directory, but before you run the shell script, go into the directory you unzipped it in and run 'npm init' and select defaults. This creates a package.json file that will be updated by the shell script. Otherwise the script doesn't create one. You can skip this and it all works, but this gives you an updated package.json that shows the dependencies you need going forward. 
+  - Go ahead and follow the instructions and it shoud all work. Don't close the web page!
+  - On Windows when you set the ExecutionPolicy, it will ask if you want to do this. The answer is yes. This allows unsigned scripts to be run. The '-Scope Process' argument means that this restriction is lifted only for this instance of powershell. 
+  - **if it is working you will see output on the browser screen that has the instructions.**
+  - On the screen you can type in a message and it should print out on the terminal that is running the script.
+  - **Important : the unzip gives you 3 security files: a private key, a public key and a certificate. DO NOT COMMIT THESE FILES TO A GITHUB REPO! or any other public site. Otherwise a crook could access the device and AWS service**
+  - when you are happy with this, click 'Done'. 
 
-## Deploy to real IoT device
+## Hoist The Example 
+
+If you look at the script you just ran, you will see it does not have a .js file in the root that it runs. Instead it reaches deep into the node_modules directory and finds the example
+code in there and runs it. This is a bit inconvenient to use, so the next thing I did was hoist the example code up to the root of this directory and refactor the code to get it to work from there. Heres what I did:
+  - copy device-example.js from [working directory]\node_modules\aws-iot-device-sdk\examples to [working directory].
+  - edit the 'require' statements as follows:
+  
+  ```javascript
+    //app deps
+  // FROM const deviceModule = require('..').device;
+  // TO
+  const deviceModule = require("aws-iot-device-sdk").device;
+
+  // FROM const cmdLineProcess = require('./lib/cmdline');
+  // TO
+  const cmdLineProcess = require('./node_modules/aws-iot-device-sdk/examples/lib/cmdline');
+
+  ```
+   - copy the startup script to a different name, I called it run.cmd (on Windows).
+   - remove everything but the node command line
+   - change the long path to the 'device-example.js' to just the name of the file. 
+   - run it. In my case I just typed '.\run.cmd' in powershell. You need the .\ in powershell, like in Linux. But you can switch to cmd.exe and just run it there.
+   - It should connect BUT now you don't see the output or input. Here's what to do next..
+
+## AWS Test Support
+
+  AWS Iot core provides a way to test device telemetry from the browser. 
+
+  - go back to the browser, click 'Services' at the top and select 'IoT core'. 
+  - in the left hand list, click 'Test'.
+  - in the 'Subscription topic' box, type 'topic_2' and click 'Subscribe to topic'. 'topic_2' is the tag for the data the device-example.js uplinks.
+  - You should see some output on the web page now.
+  - The display switches automatically to a 'publish' dialog. In the text box, type 'topic_1' which is the tag the device-example.js is subscribed to. 
+  - You should see the message on the terminal.
+  - Click 'Monitor' in the list on the left. It will show some graphs and you shoud see a couple of dots in 'Messages published' and some activity in the circle charts.
+  - It both of these work, you are done here for now.
+
+## Deploy to an IoT device
 
 Since I forked the repo all I need to do is log in to my Beaglebone, clone the repo, and set up the Quickstart simulated device as above in 'Send Simulated Telemetry'.
 I had Node version 10 installed on my BeagleBone. I just set up the device connection string as an environment variable, did "npm install" in the simulated-device directory,
