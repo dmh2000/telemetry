@@ -210,11 +210,14 @@ Here's my understanding of what security is by default in the AWS IoT samples.
  - The AWS MQTT transport is encrypted with TLS by default. This prevents traffic sniffing. [AWS IoT Hub Security](https://docs.aws.amazon.com/iot/latest/developerguide/iot-security-identity.html). I also verified using Wireshark, just in case I didn't understand the documentation. 
 
 
-## Appendix B - server.js
+## Appendix B - device.js
 
-This is what runs on the IoT device. It connects to the IoT Hub service and sends periodic messages. It actually is a decent baseline for my app, just adding the right data to it.
+This is what runs on the IoT device. It connects to the AWS IoT service and sends periodic messages. The code is refactored to include only
+the publisher component, the message is changed to match what is used in the Azure examples (random temperature and humidity values) and
+ to simplify where the connection arguments come from.
 
 ```javascript
+
 /*
  * Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
@@ -230,37 +233,20 @@ This is what runs on the IoT device. It connects to the IoT Hub service and send
  * permissions and limitations under the License.
  */
 
-//node.js deps
-
-//npm deps
-
 //app deps
 const deviceModule = require("aws-iot-device-sdk").device;
-const cmdLineProcess = require('./node_modules/aws-iot-device-sdk/examples/lib/cmdline');
 
-
-//begin module
-
-function processTest(args) {
+function device(connectionArgs) {
    //
    // The device module exports an MQTT instance, which will attempt
    // to connect to the AWS IoT endpoint configured in the arguments.
    // Once connected, it will emit events which our application can
    // handle.
    //
-   const device = deviceModule({
-      keyPath: args.privateKey,
-      certPath: args.clientCert,
-      caPath: args.caCert,
-      clientId: args.clientId,
-      region: args.region,
-      baseReconnectTimeMs: args.baseReconnectTimeMs,
-      keepalive: args.keepAlive,
-      protocol: args.Protocol,
-      port: args.Port,
-      host: args.Host,
-      debug: args.Debug
-   });
+
+   // set MQTT connection parameters
+   const device = deviceModule(connectionArgs);
+   
    // ---------------------------------------------------------------------
    // CODE FROM BEGINNING OF FILE TO HERE IS NOT CHANGED
    // ---------------------------------------------------------------------
@@ -271,13 +257,16 @@ function processTest(args) {
    timeout = setInterval(function() {
       count++;
 
-      device.publish('topic_1', JSON.stringify({
-         mode1Process: count
-      }));
+      // Simulate telemetry. taken from Azure example
+      const temperature = 20 + (Math.random() * 15);
+      const message = JSON.stringify({
+         temperature: temperature,
+         humidity: 60 + (Math.random() * 20)
+      });
 
-      console.log('sending :', JSON.stringify({
-         mode1Process: count
-      }));      
+      device.publish('topic_1', message);
+
+      console.log(`"topic_1 : ${message}`);
    }, 5000);
 
    //
@@ -316,18 +305,36 @@ function processTest(args) {
 
 }
 
-module.exports = cmdLineProcess;
-
-if (require.main === module) {
-   cmdLineProcess('connect to the AWS IoT service and publish/subscribe to topics using MQTT, test modes 1-2',
-      process.argv.slice(2), processTest);
+// set up connection args. 
+// I changed this from the 'commandLine' object that the
+// AWS example used because that was difficult to modify
+// required properties are defined by AWS deviceModule object
+const connectionArgs   = {
+   keyPath    : process.env["AWS_DEVICE_PRIVATE"],
+   certPath   : process.env["AWS_DEVICE_CERT"],
+   caPath     : process.env["AWS_ROOT_CA"],
+   clientId   : process.env["AWS_DEVICE_ID"],
+   region     : undefined,
+   baseReconnectTimeMs  : 3000,
+   keepalive  : 300,
+   protocol   : "mqtts",
+   port       : undefined,
+   host       : process.env["AWS_HOST_URL"],
+   debug      : true,
+   delay      : 4000,
 }
+
+device(connectionArgs);
+
+
 ```
 ## Appendix C - client.js
 
-This is what runs on a client somewhere. It connects to the IoT Hub service and sends periodic messages. Again it is a decent baseline for my app, just adding the right data to it.
+This is what runs on a client somewhere. It connects to the AWS IoT service and receives periodic messages. The code is 
+refactored to include only the subscriber component, and also to simplify where the connection arguments come from.
 
 ```javascript
+
 /*
  * Copyright 2010-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
@@ -352,34 +359,23 @@ This is what runs on a client somewhere. It connects to the IoT Hub service and 
 // TO
 const deviceModule = require("aws-iot-device-sdk").device;
 
-// FROM const cmdLineProcess = require('./lib/cmdline');
-// TO
-const cmdLineProcess = require('./node_modules/aws-iot-device-sdk/examples/lib/cmdline');
-
-
-//begin module
-
-function processTest(args) {
+function client(connectionArgs) {
    //
    // The device module exports an MQTT instance, which will attempt
    // to connect to the AWS IoT endpoint configured in the arguments.
    // Once connected, it will emit events which our application can
    // handle.
    //
-   const device = deviceModule({
-      keyPath: args.privateKey,
-      certPath: args.clientCert,
-      caPath: args.caCert,
-      clientId: args.clientId,
-      region: args.region,
-      baseReconnectTimeMs: args.baseReconnectTimeMs,
-      keepalive: args.keepAlive,
-      protocol: args.Protocol,
-      port: args.Port,
-      host: args.Host,
-      debug: args.Debug
-   });
- // ---------------------------------------------------------------------
+   //
+   // The device module exports an MQTT instance, which will attempt
+   // to connect to the AWS IoT endpoint configured in the arguments.
+   // Once connected, it will emit events which our application can
+   // handle.
+   //
+   
+   const device = deviceModule(connectionArgs);
+
+    // ---------------------------------------------------------------------
    // CODE FROM BEGINNING OF FILE TO HERE IS NOT CHANGED
    // ---------------------------------------------------------------------
    // HERE ARE THE ONLY CHANGES TO CLIENT.JS
@@ -423,17 +419,35 @@ function processTest(args) {
       });
    device
       .on('message', function(topic, payload) {
-         console.log('message', topic, payload.toString());
+         // set the payload as an object
+         const data = JSON.parse(payload.toString());
+         // print it
+         console.log(topic,":",data);
       });
 
 }
 
-module.exports = cmdLineProcess;
+// set up connection args. 
+// I changed this from the 'commandLine' object that the
+// AWS example used because that was difficult to modify. 
+// required properties are defined by AWS deviceModule object
+const connectionArgs   = {
+   keyPath    : process.env["AWS_DEVICE_PRIVATE"],
+   certPath   : process.env["AWS_DEVICE_CERT"],
+   caPath     : process.env["AWS_ROOT_CA"],
+   clientId   : process.env["AWS_CLIENT_ID"],
+   region     : undefined,
+   baseReconnectTimeMs  : 3000,
+   keepalive  : 300,
+   protocol   : "mqtts",
+   port       : undefined,
+   host       : process.env["AWS_HOST_URL"],
+   debug      : true,
+   delay      : 4000,
+};
 
-if (require.main === module) {
-   cmdLineProcess('connect to the AWS IoT service and publish/subscribe to topics using MQTT, test modes 1-2',
-      process.argv.slice(2), processTest);
-}
+client(connectionArgs);
+
 ```
 ## Next
 
@@ -445,4 +459,4 @@ Here's the setup I have so far:
 
 ![alt text](../img/iot-experiment-3.png "Beaglebone to Laptop")  
 
-Go to [Step 2](../step2/README.md). Turn the client side Azure IoT code into a node module.
+Go to [Step 2](../step2/README.md). Turn the client side Azure IoT code into a node module so it can be incorporated into a larger application.
